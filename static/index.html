@@ -67,7 +67,7 @@
     <div id="feedArea">
       You have no active feeds, try adding one!
     </div>
-    <form class="form-horizontal well">
+    <form id="add-feed" class="form-horizontal well">
       <fieldset>
         <div class="control-group">
           <label class="control-label" for="feedURL">Feed URL</label>
@@ -90,9 +90,9 @@
           </div>
         </div>
         <div class="control-group">
-          <label class="control-label" for="feedURL">Firebase Secret</label>
+          <label class="control-label" for="secret">Firebase Secret</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="feedURL" placeholder="d10443518ea849759570411280a15dba">
+            <input type="text" class="input-xlarge" id="secret" placeholder="d10443518ea849759570411280a15dba">
             <p class="help-block">If you have implemented security rules to prevent anonymous writes to your Firebase,
             you may provide a secret.</p>
           </div>
@@ -137,8 +137,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.0.6/humane.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/1.2.7/spin.min.js"></script>
 
 <script type="text/javascript">
+  var ref = new Firebase("https://feedthefire.firebaseio.com");
+  var authClient = new FirebaseAuthClient(ref, function(err, user) {
+    if (err) {
+      humane.error(err.message);
+    } else if (user) {
+      loadUserPage(user);
+    } else {
+      loadFrontPage();
+    }
+  });
+
   function transition(id, content, next) {
     $("#content").fadeOut("fast", function() {
       $("#content div").html(_.template($(id).html(), content));
@@ -158,23 +170,30 @@
   function loadUserPage(user) {
     $("#login").off("click");
     transition("#user-page", user, function() {
+      $("#add-feed").submit(function(e) {
+        e.preventDefault();
+        var el = $("#add-feed .form-actions");
+        el.fadeOut("fast");
+        var spinner = new Spinner().spin(el.get(0));
+        addFeed(user, function() {
+          spinner.stop();
+          el.fadeIn("slow");
+        });
+      });
       $("#logout").click(function() {
         authClient.logout();
       });
     });
   }
 
-  var URL = "https://feedthefire.firebaseio.com";
-  var ref = new Firebase(URL);
-  var authClient = new FirebaseAuthClient(ref, function(err, user) {
-    if (err) {
-      humane.error(err.message);
-    } else if (user) {
-      loadUserPage(user);
-    } else {
-      loadFrontPage();
-    }
-  });
+  function addFeed(user, done) {
+    var userRef = ref.child(user.provider).child(user.id);
+    userRef.push({
+      url: $("#feedURL").val(),
+      firebase: $("#fbURL").val(),
+      secret: $("#secret").val()
+    }, done);
+  }
 </script>
 
 </body>
