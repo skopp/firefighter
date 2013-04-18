@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Feed the Fire: RSS2Firebase</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="https://netdna.bootstrapcdn.com/bootswatch/2.3.1/readable/bootstrap.min.css" rel="stylesheet">
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
+
+  <script src="https://cdn.firebase.com/v0/firebase.js"></script>
+  <script src="https://cdn.firebase.com/v0/firebase-auth-client.js"></script>
+
+  <style>
+    .container {
+      display: none;
+      margin-top: 200px;
+    }
+    .userbox {
+      float: right;
+      text-align: right;
+    }
+    form {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body class="preview" id="top">
+<div class="container" id="content">
+  <div></div>
+  <hr>
+  <footer id="footer">
+    <a href="http://github.com/firebase/feedthefire">Code</a>
+    licensed under the <a href="http://firebase.mit-license.org">MIT License</a>.<br/>
+  </footer>
+  <br>
+</div>
+
+<script type="text/template" id="front-page">
+  <header class="jumbotron subhead" id="overview">
+    <div class="row">
+      <div class="span6">
+        <h1>Feed the Fire</h1>
+        <p class="lead">Stream RSS & Atom feeds into <a href="https://www.firebase.com">Firebase</a>.</p>
+      </div>
+    </div>
+  </header>
+  <section>
+    <a id="login" href="#"><img src="https://mdn.mozillademos.org/files/3955/email_sign_in_black.png"/></a>
+  </section>
+</script>
+
+<script type="text/template" id="user-page">
+  <section id="tables">
+    <div class="userbox">
+      <%= email %><br/>
+      <a href="#" id="logout" class="btn btn-small">Logout</a>
+    </div>
+    <div class="page-header">
+      <h1>Active Feeds</h1>
+    </div>
+    <div id="feedArea">
+      You have no active feeds, try adding one!
+    </div>
+    <form class="form-horizontal well">
+      <fieldset>
+        <div class="control-group">
+          <label class="control-label" for="feedURL">Feed URL</label>
+          <div class="controls">
+            <input required
+              type="text" class="input-xlarge" id="feedURL"
+              placeholder="http://example.org/feed.atom"
+              data-validation-required-message="The Feed URL is required.">
+            <p class="help-block">A URL to any valid RSS or Atom feed you want to source data from.</p>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="fbURL">Firebase URL</label>
+          <div class="controls">
+            <input required
+              type="text" class="input-xlarge" id="fbURL"
+              placeholder="https://example.firebaseio.com/"
+              data-validation-required-message="The Firebase URL is required.">
+            <p class="help-block">The URL to the Firebase in which you want feed items to appear.</p>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="feedURL">Firebase Secret</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="feedURL" placeholder="d10443518ea849759570411280a15dba">
+            <p class="help-block">If you have implemented security rules to prevent anonymous writes to your Firebase,
+            you may provide a secret.</p>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Add Feed</button>
+          <button type="reset" class="btn">Cancel</button>
+        </div>
+      </fieldset>
+    </form>
+  </section>
+</script>
+
+<script type="text/template" id="list-feeds">
+  <table class="table table-bordered table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Feed URL</th>
+        <th>Firebase URL</th>
+        <th>Secret</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</script>
+
+<script type="text/template" id="list-item">
+  <tr>
+    <td><%= title %></td>
+    <td><%= url %></td>
+    <td><%= firebase %></td>
+    <td><%= secret %></td>
+    <td><%= status %></td>
+  </tr>
+</script>
+
+<script src="https://login.persona.org/include.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.0.6/humane.min.js"></script>
+
+<script type="text/javascript">
+  function transition(id, content, next) {
+    $("#content").fadeOut("fast", function() {
+      $("#content div").html(_.template($(id).html(), content));
+      $("#content").fadeIn("slow", next);
+    });
+  }
+
+  function loadFrontPage() {
+    $("#logout").off("click");
+    transition("#front-page", null, function() {
+      $("#login").click(function() {
+        authClient.login("persona");
+      });
+    });
+  }
+
+  function loadUserPage(user) {
+    $("#login").off("click");
+    transition("#user-page", user, function() {
+      $("#logout").click(function() {
+        authClient.logout();
+      });
+    });
+  }
+
+  var URL = "https://feedthefire.firebaseio.com";
+  var ref = new Firebase(URL);
+  var authClient = new FirebaseAuthClient(ref, function(err, user) {
+    if (err) {
+      humane.error(err.message);
+    } else if (user) {
+      loadUserPage(user);
+    } else {
+      loadFrontPage();
+    }
+  });
+</script>
+
+</body>
+</html>
