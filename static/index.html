@@ -18,7 +18,7 @@
   <style>
     .container {
       display: none;
-      margin-top: 20px;
+      margin-top: 50px;
     }
     .userbox {
       float: right;
@@ -35,8 +35,9 @@
   <div></div>
   <hr>
   <footer id="footer">
-    <a href="http://github.com/firebase/feedthefire">Code</a>
-    licensed under the <a href="http://firebase.mit-license.org">MIT License</a>.<br/>
+    <a href="http://github.com/firebase/feedthefire" target="_blank">Feed the Fire</a> is
+    licensed under the <a href="http://firebase.mit-license.org" target="_blank">MIT License</a>.
+    Bootstrap theme from <a href="http://bootswatch.com/" target="_blank">Bootswatch</a>.<br/>
   </footer>
   <br>
 </div>
@@ -62,7 +63,7 @@
       <a href="#" id="logout" class="btn btn-small">Logout</a>
     </div>
     <div class="page-header">
-      <h1>Active Feeds</h1>
+      <h1>Feed the Fire</h1>
     </div>
     <div id="feedArea">
       <p>You have no active feeds, try adding one!</p>
@@ -130,6 +131,12 @@
   <td><%= status %></td>
 </script>
 
+<script type="text/template" id="remove-list-item">
+  <a style="float:right;" class="btn btn-small btn-danger" href="javascript:removeFeed('<%= id %>');">
+    <i class="icon-remove icon-white"></i>
+  </a>
+</script>
+
 <script src="https://login.persona.org/include.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
@@ -193,7 +200,8 @@
       url: item.url,
       firebase: item.firebase,
       secret: item.secret || "",
-      status: item.status || "<i>Processing...</i>"
+      status: (item.status || "<i>Processing...</i>") +
+        _.template($("#remove-list-item").html(), {id: id})
     });
   }
 
@@ -223,6 +231,10 @@
       var row = getRow(id, snap.val());
       $("#" + id).html(row);
     });
+  }
+
+  function removeFeed(id) {
+    userRef.child(id).remove();
   }
 
   function cleanupHandlers() {
