@@ -248,11 +248,11 @@
   }
 
   function removeFeed(id) {
-    userRef.child(id).remove();
+    userRef.child("feeds").child(id).remove();
   }
 
   function addFeed(user, done) {
-    userRef.push({
+    userRef.child("feeds").push({
       url: $("#feedURL").val(),
       firebase: $("#fbURL").val(),
       //secret: $("#secret").val()
