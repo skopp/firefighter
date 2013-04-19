@@ -90,6 +90,7 @@
             <p class="help-block">The URL to the Firebase in which you want feed items to appear.</p>
           </div>
         </div>
+        <!--
         <div class="control-group">
           <label class="control-label" for="secret">Firebase Secret</label>
           <div class="controls">
@@ -98,6 +99,7 @@
             you may provide a secret.</p>
           </div>
         </div>
+        -->
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Add Feed</button>
           <button type="reset" class="btn">Cancel</button>
@@ -194,7 +196,6 @@
       id: id,
       url: item.url,
       firebase: item.firebase,
-      secret: item.secret || "<i>N/A</i>",
       status: "<i>Processing...</i>"
     });
   }
@@ -247,7 +248,7 @@
     userRef.push({
       url: $("#feedURL").val(),
       firebase: $("#fbURL").val(),
-      secret: $("#secret").val()
+      //secret: $("#secret").val()
     }, done);
   }
 </script>
