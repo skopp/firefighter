@@ -15,7 +15,7 @@ ref.auth(process.env.SECRET, function(err) {
 
 function setupHandlers() {
   ref.on("child_added", function(snap) {
-    var childRef = ref.child(snap.name());
+    var childRef = ref.child(snap.name()).child("feeds");
     childRef.on("child_added", editUserFeed);
     childRef.on("child_changed", editUserFeed);
     childRef.on("child_removed", function(snap) {
@@ -23,56 +23,60 @@ function setupHandlers() {
     });
   });
   ref.on("child_removed", function(snap) {
-    var childRef = ref.child(snap.name());
+    var childRef = ref.child(snap.name()).child("feeds");
     childRef.off();
   });
 }
 
 var feeds = {};
 function editUserFeed(snap) {
-  feeds[snap.ref().toString()] = snap.val();
+  var id = snap.name();
+  feeds[id] = {
+    status: new Firebase(snap.ref().toString()).parent().parent().child("status/" + id),
+    value: snap.val()
+  };
   parseFeeds();
 }
 
 function parseFeeds() {
-  for (var path in feeds) {
+  for (var id in feeds) {
     var abort = false;
-    var feed = feeds[path];
-    var statusRef = new Firebase(path + "/status");
-    request(feed.url, function(err) {
+    var feed = feeds[id];
+    request(feed.value.url, function(err) {
       if (err) {
         abort = true;
-        statusRef.set(err);
+        feed.status.set(err);
       }  
     })
       .pipe(new Parser())
       .on("error", function(err) {
         abort = true;
-        statusRef.set(err);
+        feed.status.set(err);
       })
       .on("meta", function(meta) {
         try {
-          var fbRef = new Firebase(feed.firebase);
+          var fbRef = new Firebase(feed.value.firebase);
           fbRef.child("meta").set(meta);
         } catch(e) {
           abort = true;
-          statusRef.set("Error: " + e);
+          feed.status.set(e.toString());
         }
       })
       .on("article", function(article) {
         var id = article.guid || article.link || article.title;
         id = new Buffer(id).toString("base64");
         try {
-          var fbRef = new Firebase(feed.firebase);
+          var fbRef = new Firebase(feed.value.firebase);
           fbRef.child(id).set(article);
         } catch(e) {
           abort = true;
-          statusRef.set("Error: " + e);
+          console.log(e);
+          feed.status.set(e.toString());
         }
       })
       .on("end", function() {
         if (!abort) {
-          statusRef.set("Last Sync: " + new Date());
+          feed.status.set("Last Sync: " + new Date());
         }
       });
   }

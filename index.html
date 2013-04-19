@@ -111,11 +111,10 @@
   <table class="table table-bordered table-striped table-hover">
     <thead>
       <tr>
-        <th>Title</th>
         <th>Feed URL</th>
         <th>Firebase URL</th>
-        <th>Secret</th>
         <th>Status</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -124,17 +123,14 @@
 </script>
 
 <script type="text/template" id="list-item">
-  <td><%= title %></td>
-  <td><%= url %></td>
-  <td><%= firebase %></td>
-  <td><%= secret %></td>
-  <td><%= status %></td>
-</script>
-
-<script type="text/template" id="remove-list-item">
-  <a style="float:right;" class="btn btn-small btn-danger" href="javascript:removeFeed('<%= id %>');">
-    <i class="icon-remove icon-white"></i>
-  </a>
+  <td><code><%= url %></code></td>
+  <td><code><%= firebase %></code></td>
+  <td class="status"><%= status %></td>
+  <td>
+    <a style="float:right;" class="btn btn-small btn-danger" href="javascript:removeFeed('<%= id %>');">
+      <i class="icon-remove icon-white"></i>
+    </a>
+  </td>
 </script>
 
 <script src="https://login.persona.org/include.js"></script>
@@ -196,17 +192,15 @@
   function getRow(id, item) {
     return _.template($("#list-item").html(), {
       id: id,
-      title: item.title || "<i>Unknown</i>",
       url: item.url,
       firebase: item.firebase,
-      secret: item.secret || "",
-      status: (item.status || "<i>Processing...</i>") +
-        _.template($("#remove-list-item").html(), {id: id})
+      secret: item.secret || "<i>N/A</i>",
+      status: "<i>Processing...</i>"
     });
   }
 
   function setupHandlers(user) {
-    userRef = ref.child(user.provider).child(user.id);
+    userRef = ref.child(user.provider).child(user.id).child("feeds");
 
     userRef.on("child_added", function(snap) {
       var id = snap.name();
@@ -231,6 +225,14 @@
       var row = getRow(id, snap.val());
       $("#" + id).html(row);
     });
+
+    userRef.parent().child("status").on("child_added", updateStatus);
+    userRef.parent().child("status").on("child_changed", updateStatus);
+  }
+
+  function updateStatus(snap) {
+    var id = snap.name();
+    $("#" + id + " .status").html(snap.val());
   }
 
   function removeFeed(id) {
