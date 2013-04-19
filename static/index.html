@@ -18,7 +18,7 @@
   <style>
     .container {
       display: none;
-      margin-top: 200px;
+      margin-top: 20px;
     }
     .userbox {
       float: right;
@@ -65,7 +65,7 @@
       <h1>Active Feeds</h1>
     </div>
     <div id="feedArea">
-      You have no active feeds, try adding one!
+      <p>You have no active feeds, try adding one!</p>
     </div>
     <form id="add-feed" class="form-horizontal well">
       <fieldset>
@@ -123,13 +123,11 @@
 </script>
 
 <script type="text/template" id="list-item">
-  <tr>
-    <td><%= title %></td>
-    <td><%= url %></td>
-    <td><%= firebase %></td>
-    <td><%= secret %></td>
-    <td><%= status %></td>
-  </tr>
+  <td><%= title %></td>
+  <td><%= url %></td>
+  <td><%= firebase %></td>
+  <td><%= secret %></td>
+  <td><%= status %></td>
 </script>
 
 <script src="https://login.persona.org/include.js"></script>
@@ -137,9 +135,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.0.6/humane.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/1.2.7/spin.min.js"></script>
 
 <script type="text/javascript">
+  var num = 0;
+  var userRef = null;
   var ref = new Firebase("https://feedthefire.firebaseio.com");
   var authClient = new FirebaseAuthClient(ref, function(err, user) {
     if (err) {
@@ -161,6 +160,7 @@
   function loadFrontPage() {
     $("#logout").off("click");
     transition("#front-page", null, function() {
+      cleanupHandlers();
       $("#login").click(function() {
         authClient.login("persona");
       });
@@ -170,14 +170,14 @@
   function loadUserPage(user) {
     $("#login").off("click");
     transition("#user-page", user, function() {
+      setupHandlers(user);
       $("#add-feed").submit(function(e) {
         e.preventDefault();
-        var el = $("#add-feed .form-actions");
-        el.fadeOut("fast");
-        var spinner = new Spinner().spin(el.get(0));
+        var el = $("#add-feed .form-actions > button[type=submit]");
+        el.attr("disabled", "disabled");
         addFeed(user, function() {
-          spinner.stop();
-          el.fadeIn("slow");
+          $("#add-feed")[0].reset();
+          el.removeAttr("disabled");
         });
       });
       $("#logout").click(function() {
@@ -186,8 +186,50 @@
     });
   }
 
+  function getRow(id, item) {
+    return _.template($("#list-item").html(), {
+      id: id,
+      title: item.title || "<i>Unknown</i>",
+      url: item.url,
+      firebase: item.firebase,
+      secret: item.secret || "",
+      status: item.status || "<i>Processing...</i>"
+    });
+  }
+
+  function setupHandlers(user) {
+    userRef = ref.child(user.provider).child(user.id);
+
+    userRef.on("child_added", function(snap) {
+      var id = snap.name();
+      var row = getRow(id, snap.val());
+      if (num == 0) {
+        $("#feedArea").html($("#list-feeds").html());
+      }
+      $("#feedArea tbody").append($("<tr id=" + id + ">").html(row));
+      num++;
+    });
+
+    userRef.on("child_removed", function(snap) {
+      $("#" + snap.name()).remove();
+      num--;
+      if (num == 0) {
+        $("#feedArea").html("<p>You have no active feeds, try adding one!</p>");
+      }
+    });
+
+    userRef.on("child_changed", function(snap) {
+      var id = snap.name();
+      var row = getRow(id, snap.val());
+      $("#" + id).html(row);
+    });
+  }
+
+  function cleanupHandlers() {
+    ref.unauth();
+  }
+
   function addFeed(user, done) {
-    var userRef = ref.child(user.provider).child(user.id);
     userRef.push({
       url: $("#feedURL").val(),
       firebase: $("#fbURL").val(),

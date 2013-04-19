@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "$provider": {
+      "$user": {
+        ".read": "auth.id == $user && auth.provider == $provider",
+        ".write": "auth.id == $user && auth.provider == $provider",
+      }
+    }
+  }
+}
