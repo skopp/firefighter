@@ -182,7 +182,7 @@
         e.preventDefault();
         var el = $("#add-feed .form-actions > button[type=submit]");
         el.attr("disabled", "disabled");
-        addFeed(user, function() {
+        addFeed(userRef, user, function() {
           $("#add-feed")[0].reset();
           el.removeAttr("disabled");
         });
@@ -250,7 +250,7 @@
     userRef.child(id).remove();
   }
 
-  function addFeed(user, done) {
+  function addFeed(userRef, user, done) {
     userRef.push({
       url: $("#feedURL").val(),
       firebase: $("#fbURL").val(),
