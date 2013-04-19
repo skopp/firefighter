@@ -44,6 +44,7 @@
 
 <script type="text/template" id="front-page">
   <header class="jumbotron subhead" id="overview">
+    <img style="float:right;width:300px;" src="feedthefire.png"/>
     <div class="row">
       <div class="span6">
         <h1>Feed the Fire</h1>
@@ -142,14 +143,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.0.6/humane.min.js"></script>
 
 <script type="text/javascript">
-  var num = 0;
-  var userRef = null;
-  var ref = new Firebase("https://feedthefire.firebaseio.com");
+  var __num = 0;
+  var __URL = "https://feedthefire.firebaseio.com";
+
+  var ref = new Firebase(__URL);
   var authClient = new FirebaseAuthClient(ref, function(err, user) {
     if (err) {
       humane.error(err.message);
     } else if (user) {
-      loadUserPage(user);
+      var userRef = new Firebase(__URL).child(user.provider).child(user.id);
+      loadUserPage(userRef, user);
     } else {
       loadFrontPage();
     }
@@ -165,17 +168,16 @@
   function loadFrontPage() {
     $("#logout").off("click");
     transition("#front-page", null, function() {
-      cleanupHandlers();
       $("#login").click(function() {
         authClient.login("persona");
       });
     });
   }
 
-  function loadUserPage(user) {
+  function loadUserPage(userRef, user) {
     $("#login").off("click");
     transition("#user-page", user, function() {
-      setupHandlers(user);
+      setupHandlers(userRef);
       $("#add-feed").submit(function(e) {
         e.preventDefault();
         var el = $("#add-feed .form-actions > button[type=submit]");
@@ -186,6 +188,7 @@
         });
       });
       $("#logout").click(function() {
+        cleanupHandlers(userRef);
         authClient.logout();
       });
     });
@@ -200,35 +203,42 @@
     });
   }
 
-  function setupHandlers(user) {
-    userRef = ref.child(user.provider).child(user.id).child("feeds");
+  function setupHandlers(userRef) {
+    var feedRef = userRef.child("feeds");
 
-    userRef.on("child_added", function(snap) {
+    feedRef.on("child_added", function(snap) {
       var id = snap.name();
       var row = getRow(id, snap.val());
-      if (num == 0) {
+      if (__num == 0) {
         $("#feedArea").html($("#list-feeds").html());
       }
       $("#feedArea tbody").append($("<tr id=" + id + ">").html(row));
-      num++;
+      __num++;
     });
 
-    userRef.on("child_removed", function(snap) {
+    feedRef.on("child_removed", function(snap) {
       $("#" + snap.name()).remove();
-      num--;
-      if (num == 0) {
+      __num--;
+      if (__num == 0) {
         $("#feedArea").html("<p>You have no active feeds, try adding one!</p>");
       }
     });
 
-    userRef.on("child_changed", function(snap) {
+    feedRef.on("child_changed", function(snap) {
       var id = snap.name();
       var row = getRow(id, snap.val());
       $("#" + id).html(row);
     });
 
-    userRef.parent().child("status").on("child_added", updateStatus);
-    userRef.parent().child("status").on("child_changed", updateStatus);
+    var statusRef = userRef.child("status");
+    statusRef.on("child_added", updateStatus);
+    statusRef.on("child_changed", updateStatus);
+  }
+
+  function cleanupHandlers(userRef) {
+    __num = 0;
+    userRef.child("feeds").off();
+    userRef.child("status").off();
   }
 
   function updateStatus(snap) {
@@ -238,10 +248,6 @@
 
   function removeFeed(id) {
     userRef.child(id).remove();
-  }
-
-  function cleanupHandlers() {
-    ref.unauth();
   }
 
   function addFeed(user, done) {
