@@ -147,12 +147,13 @@
   var __URL = "https://feedthefire.firebaseio.com";
 
   var ref = new Firebase(__URL);
+  var userRef = null;
   var authClient = new FirebaseAuthClient(ref, function(err, user) {
     if (err) {
       humane.error(err.message);
     } else if (user) {
-      var userRef = new Firebase(__URL).child(user.provider).child(user.id);
-      loadUserPage(userRef, user);
+      userRef = new Firebase(__URL).child(user.provider).child(user.id);
+      loadUserPage(user);
     } else {
       loadFrontPage();
     }
@@ -174,21 +175,21 @@
     });
   }
 
-  function loadUserPage(userRef, user) {
+  function loadUserPage(user) {
     $("#login").off("click");
     transition("#user-page", user, function() {
-      setupHandlers(userRef);
+      setupHandlers();
       $("#add-feed").submit(function(e) {
         e.preventDefault();
         var el = $("#add-feed .form-actions > button[type=submit]");
         el.attr("disabled", "disabled");
-        addFeed(userRef, user, function() {
+        addFeed(user, function() {
           $("#add-feed")[0].reset();
           el.removeAttr("disabled");
         });
       });
       $("#logout").click(function() {
-        cleanupHandlers(userRef);
+        cleanupHandlers();
         authClient.logout();
       });
     });
@@ -203,7 +204,7 @@
     });
   }
 
-  function setupHandlers(userRef) {
+  function setupHandlers() {
     var feedRef = userRef.child("feeds");
 
     feedRef.on("child_added", function(snap) {
@@ -235,7 +236,7 @@
     statusRef.on("child_changed", updateStatus);
   }
 
-  function cleanupHandlers(userRef) {
+  function cleanupHandlers() {
     __num = 0;
     userRef.child("feeds").off();
     userRef.child("status").off();
@@ -250,7 +251,7 @@
     userRef.child(id).remove();
   }
 
-  function addFeed(userRef, user, done) {
+  function addFeed(user, done) {
     userRef.push({
       url: $("#feedURL").val(),
       firebase: $("#fbURL").val(),
