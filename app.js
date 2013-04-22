@@ -74,45 +74,57 @@ function parseFeeds() {
 }
 
 function getAndSetFeed(feed) {
-  var abort = false;
-  request(feed.value.url, function(err) {
+  try {
+    var fbRef = new Firebase(feed.value.firebase);
+    if (feed.value.secret) {
+      fbRef.auth(feed.value.secret, function(err) {
+        if (err) {
+          feed.status.set(err.toString());
+        } else {
+          doRequest(feed.value.url, feed.status, fbRef);
+        }
+      });
+    } else {
+      doRequest(feed.value.url, feed.status, fbRef);
+    }
+  } catch(e) {
+    feed.status.set(e.toString());
+  }
+}
+
+function doRequest(url, status, fbRef) {
+  Parser.parseUrl(url, function(err, meta, articles) {
     if (err) {
-      abort = true;
-      feed.status.set(err);
-    }  
-  }).
-  pipe(new Parser({addmeta: false})).
-  on("error", function(err) {
-    abort = true;
-    feed.status.set(err);
-  }).
-  on("meta", function(meta) {
-    try {
-      var fbRef = new Firebase(feed.value.firebase);
-      fbRef.child("meta").set(sanitizeObject(meta));
-    } catch(e) {
-      abort = true;
-      console.log("Error for object: ");
-      console.log(sanitizeObject(meta));
-      feed.status.set(e.toString());
+      status.set(err.toString());
+      return;
     }
-  }).
-  on("article", function(article) {
-    var id = article.guid || article.link || article.title;
-    id = new Buffer(id).toString("base64");
     try {
-      var fbRef = new Firebase(feed.value.firebase);
-      fbRef.child("articles/" + id).set(sanitizeObject(article));
+      fbRef.child("meta").set(sanitizeObject(meta), function(err) {
+        if (err) {
+          status.set(err.toString());
+          return;
+        }
+        var total = articles.length, done = 0;
+        function _writeArticle(article) {
+          var id = article.guid || article.link || article.title;
+          id = new Buffer(id).toString("base64");
+          fbRef.child("articles/" + id).set(sanitizeObject(article), function(err) {
+            if (err) {
+              status.set(err.toString());
+            } else {
+              done++;
+              if (done == total - 1) {
+                status.set("Last Sync:<br/>" + new Date());
+              } else {
+                _writeArticle(articles[done]);
+              }
+            }
+          });
+        }
+        _writeArticle(articles[done]);
+      });
     } catch(e) {
-      abort = true;
-      console.log("Error for object: ");
-      console.log(sanitizeObject(article));
-      feed.status.set(e.toString());
-    }
-  }).
-  on("end", function() {
-    if (!abort) {
-      feed.status.set("Last Sync:<br/>" + new Date());
+      status.set(e.toString());
     }
   });
 }

@@ -66,9 +66,6 @@
     <div class="page-header">
       <h1>Feed the Fire</h1>
     </div>
-    <div id="feedArea">
-      <p>You have no active feeds, try adding one!</p>
-    </div>
     <form id="add-feed" class="form-horizontal well">
       <fieldset>
         <div class="control-group">
@@ -91,7 +88,6 @@
             <p class="help-block">The URL to the Firebase in which you want feed items to appear.</p>
           </div>
         </div>
-        <!--
         <div class="control-group">
           <label class="control-label" for="secret">Firebase Secret</label>
           <div class="controls">
@@ -100,13 +96,15 @@
             you may provide a secret.</p>
           </div>
         </div>
-        -->
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Add Feed</button>
           <button type="reset" class="btn">Cancel</button>
         </div>
       </fieldset>
     </form>
+    <div id="feedArea">
+      <p>You have no active feeds, try adding one!</p>
+    </div>
   </section>
 </script>
 
@@ -255,7 +253,7 @@
     userRef.child("feeds").push({
       url: $("#feedURL").val(),
       firebase: $("#fbURL").val(),
-      //secret: $("#secret").val()
+      secret: $("#secret").val()
     }, done);
   }
 </script>
