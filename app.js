@@ -1,5 +1,6 @@
 
-var request = require("request")
+var crypto = require("crypto")
+  , request = require("request")
   , Parser = require("feedparser")
   , Firebase = require("firebase");
 
@@ -93,7 +94,7 @@ function getAndSetFeed(feed) {
 }
 
 function doRequest(url, status, fbRef) {
-  Parser.parseUrl(url, function(err, meta, articles) {
+  Parser.parseUrl(url, {addmeta: false}, function(err, meta, articles) {
     if (err) {
       status.set(err.toString());
       return;
@@ -107,8 +108,16 @@ function doRequest(url, status, fbRef) {
         var total = articles.length, done = 0;
         function _writeArticle(article) {
           var id = article.guid || article.link || article.title;
-          id = new Buffer(id).toString("base64");
-          fbRef.child("articles/" + id).set(sanitizeObject(article), function(err) {
+          var shasum = crypto.createHash("sha1");
+          shasum.update(id);
+          id = shasum.digest("hex");
+
+          var date = article.pubDate || article.pubdate || article.date ||
+            article["rss:pubdate"] || new Date().toString();
+          var timestamp = Date.parse(date);
+
+          var arRef = fbRef.child("articles/" + id);
+          arRef.setWithPriority(sanitizeObject(article), timestamp, function(err) {
             if (err) {
               status.set(err.toString());
             } else {
