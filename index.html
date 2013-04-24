@@ -11,6 +11,7 @@
 
   <link href="https://netdna.bootstrapcdn.com/bootswatch/2.3.1/readable/bootstrap.min.css" rel="stylesheet">
   <link href="https://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
+  <link href="http://softwaremaniacs.org/media/soft/highlight/styles/solarized_light.css" rel="stylesheet">
 
   <script src="https://cdn.firebase.com/v0/firebase.js"></script>
   <script src="https://cdn.firebase.com/v0/firebase-auth-client.js"></script>
@@ -26,6 +27,13 @@
     }
     form {
       margin-top: 20px;
+    }
+    #expander {
+      cursor: pointer;
+      text-decoration: none;
+    }
+    #default-feed-list {
+      display: none;
     }
   </style>
 </head>
@@ -49,12 +57,248 @@
     <div class="row">
       <div class="span6">
         <h1>Feed the Fire</h1>
-        <p class="lead">Stream RSS & Atom feeds into <a href="https://www.firebase.com">Firebase</a>.</p>
+        <p class="lead">Stream RSS & Atom feeds into <a target="_blank" href="https://www.firebase.com">Firebase</a>.</p>
       </div>
     </div>
   </header>
   <section>
-    <a id="login" href="#"><img src="https://mdn.mozillademos.org/files/3955/email_sign_in_black.png"/></a>
+    <p>
+      <a id="login" href="#"><img src="https://mdn.mozillademos.org/files/3955/email_sign_in_black.png"/></a>
+      &nbsp;&nbsp;to set up your own subscriptions &dash; <b>OR</b> &dash;
+    </p>
+    <p>
+      Directly consume some of the most popular feeds from a public Firebase in just a few lines of code:
+    </p>
+    <div class="row-fluid">
+      <div class="span8">
+        <pre><code style="font-size:13px;" id="home-example" class="language-javascript"></code></pre>
+      </div>
+      <div class="span1" style="padding-top:110px;font-size:175px;">&#125;</div>
+      <div class="span3" style="padding-top:30px;padding-left:10px;">
+        <h4 id="e-title"></h5>
+        <ul id="e-list"></ul>
+      </div>
+    </div>
+    <p>
+      <a id="expander">
+        Full list of public feeds available &nbsp;
+        <img id="expander"
+          src="https://www.firebase.com/forge/images/expand_data.png"
+          data-alt="https://www.firebase.com/forge/images/collapse_data.png"/>
+      </a>
+    </p>
+    <div id="default-feed-list">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <td><b>Name</b></td>
+          <td><b>Firebase URL</b></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="http://xkcd.com/rss.xml" target="_blank">xkcd.com</a></td>
+          <td><code>https://feeds.firebaseio.com/xkcd</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/TechCrunch" target="_blank">TechCrunch</a></td>
+          <td><code>https://feeds.firebaseio.com/techcrunch</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.gawker.com/gizmodo/full" target="_blank">Gizmodo</a></td>
+          <td><code>https://feeds.firebaseio.com/gizmodo</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.arstechnica.com/arstechnica/index/" target="_blank">Ars Technica</a></td>
+          <td><code>https://feeds.firebaseio.com/ars</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.gawker.com/lifehacker/full" target="_blank">Lifehacker</a></td>
+          <td><code>https://feeds.firebaseio.com/lifehacker</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://blog.newsblur.com/rss" target="_blank">The NewsBlur Blog</a></td>
+          <td><code>https://feeds.firebaseio.com/newsblur</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/blogspot/MKuf" target="_blank">The Official Google Blog</a></td>
+          <td><code>https://feeds.firebaseio.com/google</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://rss.slashdot.org/Slashdot/slashdot" target="_blank">Slashdot</a></td>
+          <td><code>https://feeds.firebaseio.com/slashdot</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://daringfireball.net/index.xml" target="_blank">Daring Fireball</a></td>
+          <td><code>https://feeds.firebaseio.com/fireball</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://www.engadget.com/rss.xml" target="_blank">Engadget RSS Feed</a></td>
+          <td><code>https://feeds.firebaseio.com/engadget</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.wired.com/wired/index" target="_blank">Wired Top Stories</a></td>
+          <td><code>https://feeds.firebaseio.com/wired</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/boingboing/iBag" target="_blank">Boing Boing</a></td>
+          <td><code>https://feeds.firebaseio.com/boing</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.boston.com/boston/bigpicture/index" target="_blank">The Big Picture</a></td>
+          <td><code>https://feeds.firebaseio.com/bigpicture</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/oatmealfeed" target="_blank">The Oatmeal</a></td>
+          <td><code>https://feeds.firebaseio.com/oatmeal</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/codinghorror/" target="_blank">Coding Horror</a></td>
+          <td><code>https://feeds.firebaseio.com/codinghorror</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.kottke.org/main" target="_blank">kottke.org</a></td>
+          <td><code>https://feeds.firebaseio.com/kottke</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/smbc-comics/PvLb" target="_blank">Saturday Morning Breakfast Cereal (updated daily)</a></td>
+          <td><code>https://feeds.firebaseio.com/smbc</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://rss1.smashingmagazine.com/feed/" target="_blank">Smashing Magazine Feed</a></td>
+          <td><code>https://feeds.firebaseio.com/smashing</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://www.tuaw.com/rss.xml" target="_blank">The Unofficial Apple Weblog</a></td>
+          <td><code>https://feeds.firebaseio.com/tuaw</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/OfficialGmailBlog" target="_blank">Gmail Blog</a></td>
+          <td><code>https://feeds.firebaseio.com/gmail</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.macrumors.com/MacRumors-All" target="_blank">MacRumors: Mac News and Rumors</a></td>
+          <td><code>https://feeds.firebaseio.com/macrumors</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/makezineonline" target="_blank">MAKE</a></td>
+          <td><code>https://feeds.firebaseio.com/make</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://www.joelonsoftware.com/rss.xml" target="_blank">Joel on Software</a></td>
+          <td><code>https://feeds.firebaseio.com/joel</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/blogspot/dtKx" target="_blank">Official Google Reader Blog</a></td>
+          <td><code>https://feeds.firebaseio.com/reader</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/DilbertDailyStrip" target="_blank">Dilbert Daily Strip</a></td>
+          <td><code>https://feeds.firebaseio.com/dilbert</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://rss.nytimes.com/services/xml/rss/nyt/US.xml" target="_blank">NYT > U.S.</a></td>
+          <td><code>https://feeds.firebaseio.com/nyt</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.bbci.co.uk/news/rss.xml?edition=int" target="_blank">BBC News - Home</a></td>
+          <td><code>https://feeds.firebaseio.com/bbc</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/failblog" target="_blank">FAIL Blog</a></td>
+          <td><code>https://feeds.firebaseio.com/failblog</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/alistapart/main" target="_blank">A List Apart</a></td>
+          <td><code>https://feeds.firebaseio.com/alistapart</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/marcoorg" target="_blank">Marco.org</a></td>
+          <td><code>https://feeds.firebaseio.com/marco</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://www.theverge.com/rss/index.xml" target="_blank">The Verge -  All Posts</a></td>
+          <td><code>https://feeds.firebaseio.com/marco</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://zenhabits.net/feed/" target="_blank">zenhabits</a></td>
+          <td><code>https://feeds.firebaseio.com/zenhabits</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://syndication.thedailywtf.com/TheDailyWtf" target="_blank">The Daily WTF</a></td>
+          <td><code>https://feeds.firebaseio.com/dailywtf</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/typepad/sethsmainblog" target="_blank">Seth Godin</a></td>
+          <td><code>https://feeds.firebaseio.com/seth</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.penny-arcade.com/pa-mainsite" target="_blank">Penny Arcade</a></td>
+          <td><code>https://feeds.firebaseio.com/penny</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://what-if.xkcd.com/feed.atom" target="_blank">What If?</a></td>
+          <td><code>https://feeds.firebaseio.com/whatif</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/readwriteweb" target="_blank">ReadWriteWeb</a></td>
+          <td><code>https://feeds.firebaseio.com/readwrite</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://www.questionablecontent.net/QCRSS.xml" target="_blank">Questionable Content</a></td>
+          <td><code>https://feeds.firebaseio.com/qc</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://kk.org/cooltools/feed" target="_blank">Cool Tools</a></td>
+          <td><code>https://feeds.firebaseio.com/cooltools</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/GoogleOperatingSystem" target="_blank">Google Operating System</a></td>
+          <td><code>https://feeds.firebaseio.com/googleos</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/smittenkitchen" target="_blank">smitten kitchen</a></td>
+          <td><code>https://feeds.firebaseio.com/smitten</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://rss.cnn.com/rss/cnn_topstories.rss" target="_blank">CNN.com</a></td>
+          <td><code>https://feeds.firebaseio.com/cnn</code></td>
+        </tr>
+        <tr>
+          <td><a href="https://news.ycombinator.com/rss" target="_blank">Hacker News</a></td>
+          <td><code>https://feeds.firebaseio.com/hn</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://www.randsinrepose.com/index.xml" target="_blank">Rands In Repose</a></td>
+          <td><code>https://feeds.firebaseio.com/rands</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://waxy.org/index.xml" target="_blank">Waxy.org</a></td>
+          <td><code>https://feeds.firebaseio.com/waxy</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/venturebeat" target="_blank">VentureBeat</a></td>
+          <td><code>https://feeds.firebaseio.com/venturebeat</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/apartmenttherapy/main" target="_blank">Apartment Therapy</a></td>
+          <td><code>https://feeds.firebaseio.com/apartment</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/Hyperbole-and-a-half" target="_blank">Hyperbole and a Half</a></td>
+          <td><code>https://feeds.firebaseio.com/hyperbole</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/ommalik" target="_blank">GigaOM</a></td>
+          <td><code>https://feeds.firebaseio.com/gigaom</code></td>
+        </tr>
+        <tr>
+          <td><a href="http://feeds.feedburner.com/schneier/fulltext" target="_blank">Schneier on Security</a></td>
+          <td><code>https://feeds.firebaseio.com/schneier</code></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
   </section>
 </script>
 
@@ -140,6 +384,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.0.6/humane.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/highlight.min.js"></script>
+
+<script id="example-script" type="text/javascript">var ref = new Firebase("https://anant.firebaseio.com/feeds/xckd");
+ref.child("meta").once("value", function(snapshot) {
+  $("#e-title").html(snapshot.val().description);
+});
+ref.child("articles").on("child_added", function(snapshot) {
+  var article = snapshot.val();
+  var link = $("<a>", {"href": article.link, "target": "_blank"});
+  $("#e-list").append($("<li>").append(link.html(article.title)));
+});
+</script>
 
 <script type="text/javascript">
   var __num = 0;
@@ -168,6 +424,16 @@
   function loadFrontPage() {
     $("#logout").off("click");
     transition("#front-page", null, function() {
+      $("#expander").click(function(e) {
+        e.preventDefault();
+        var img = $("#expander img");
+        var link = img.data("alt");
+        img.data("alt", img.attr("src"));
+        img.attr("src", link);
+        $("#default-feed-list").slideToggle();
+      });
+      $("#home-example").html(_.escape($("#example-script").html()));
+      $("pre code").each(function(i, e) { hljs.highlightBlock(e); });
       $("#login").click(function() {
         authClient.login("persona");
       });
@@ -176,6 +442,7 @@
 
   function loadUserPage(user) {
     $("#login").off("click");
+    $("#expander").off("click");
     transition("#user-page", user, function() {
       setupHandlers();
       $("#add-feed").submit(function(e) {
