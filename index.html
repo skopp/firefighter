@@ -11,7 +11,9 @@
 
   <link href="https://netdna.bootstrapcdn.com/bootswatch/2.3.1/readable/bootstrap.min.css" rel="stylesheet">
   <link href="https://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
-  <link href="http://softwaremaniacs.org/media/soft/highlight/styles/solarized_light.css" rel="stylesheet">
+
+  <link href="static/jackedup.css" rel="stylesheet">
+  <link href="static/solarized_light.css" rel="stylesheet">
 
   <script src="https://cdn.firebase.com/v0/firebase.js"></script>
   <script src="https://cdn.firebase.com/v0/firebase-auth-client.js"></script>
@@ -46,6 +48,8 @@
   <footer id="footer">
     <a href="http://github.com/firebase/feedthefire" target="_blank">Feed the Fire</a> is
     licensed under the <a href="http://firebase.mit-license.org" target="_blank">MIT License</a>.
+    Popular feed list courtesy of <a href="http://www.newsblur.com/" target="_blank">NewsBlur</a>.
+    <br/>
     Bootstrap theme from <a href="http://bootswatch.com/" target="_blank">Bootswatch</a>.<br/>
   </footer>
   <br>
@@ -53,7 +57,7 @@
 
 <script type="text/template" id="front-page">
   <header class="jumbotron subhead" id="overview">
-    <img style="float:right;width:300px;" src="feedthefire.png"/>
+    <img style="float:right;width:300px;" src="static/feedthefire.png"/>
     <div class="row">
       <div class="span6">
         <h1>Feed the Fire</h1>
@@ -63,7 +67,7 @@
   </header>
   <section>
     <p>
-      <a id="login" href="#"><img src="https://mdn.mozillademos.org/files/3955/email_sign_in_black.png"/></a>
+      <a id="login" href="#"><img src="static/sign_in.png"/></a>
       &nbsp;&nbsp;to set up your own subscriptions &dash; <b>OR</b> &dash;
     </p>
     <p>
@@ -88,213 +92,264 @@
       </a>
     </p>
     <div id="default-feed-list">
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered">
       <thead>
         <tr>
           <td><b>Name</b></td>
           <td><b>Firebase URL</b></td>
+          <td><b>Copy</b></td>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><a href="http://xkcd.com/rss.xml" target="_blank">xkcd.com</a></td>
           <td><code>https://feeds.firebaseio.com/xkcd</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/xkcd" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/TechCrunch" target="_blank">TechCrunch</a></td>
           <td><code>https://feeds.firebaseio.com/techcrunch</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/techcrunch" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.gawker.com/gizmodo/full" target="_blank">Gizmodo</a></td>
           <td><code>https://feeds.firebaseio.com/gizmodo</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/gizmodo" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.arstechnica.com/arstechnica/index/" target="_blank">Ars Technica</a></td>
           <td><code>https://feeds.firebaseio.com/ars</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/ars" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.gawker.com/lifehacker/full" target="_blank">Lifehacker</a></td>
           <td><code>https://feeds.firebaseio.com/lifehacker</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/lifehacker" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://blog.newsblur.com/rss" target="_blank">The NewsBlur Blog</a></td>
           <td><code>https://feeds.firebaseio.com/newsblur</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/newsblur" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/blogspot/MKuf" target="_blank">The Official Google Blog</a></td>
           <td><code>https://feeds.firebaseio.com/google</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/google" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://rss.slashdot.org/Slashdot/slashdot" target="_blank">Slashdot</a></td>
           <td><code>https://feeds.firebaseio.com/slashdot</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/slashdot" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://daringfireball.net/index.xml" target="_blank">Daring Fireball</a></td>
           <td><code>https://feeds.firebaseio.com/fireball</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/fireball" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://www.engadget.com/rss.xml" target="_blank">Engadget RSS Feed</a></td>
           <td><code>https://feeds.firebaseio.com/engadget</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/engadget" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.wired.com/wired/index" target="_blank">Wired Top Stories</a></td>
           <td><code>https://feeds.firebaseio.com/wired</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/wired" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/boingboing/iBag" target="_blank">Boing Boing</a></td>
           <td><code>https://feeds.firebaseio.com/boing</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/boing" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.boston.com/boston/bigpicture/index" target="_blank">The Big Picture</a></td>
           <td><code>https://feeds.firebaseio.com/bigpicture</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/bigpicture" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/oatmealfeed" target="_blank">The Oatmeal</a></td>
           <td><code>https://feeds.firebaseio.com/oatmeal</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/oatmeal" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/codinghorror/" target="_blank">Coding Horror</a></td>
           <td><code>https://feeds.firebaseio.com/codinghorror</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/codinghorror" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.kottke.org/main" target="_blank">kottke.org</a></td>
           <td><code>https://feeds.firebaseio.com/kottke</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/kottke" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
-          <td><a href="http://feeds.feedburner.com/smbc-comics/PvLb" target="_blank">Saturday Morning Breakfast Cereal (updated daily)</a></td>
+          <td><a href="http://feeds.feedburner.com/smbc-comics/PvLb" target="_blank">Saturday Morning Breakfast Cereal</a></td>
           <td><code>https://feeds.firebaseio.com/smbc</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/smbc" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://rss1.smashingmagazine.com/feed/" target="_blank">Smashing Magazine Feed</a></td>
           <td><code>https://feeds.firebaseio.com/smashing</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/smashing" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://www.tuaw.com/rss.xml" target="_blank">The Unofficial Apple Weblog</a></td>
           <td><code>https://feeds.firebaseio.com/tuaw</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/tuaw" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/OfficialGmailBlog" target="_blank">Gmail Blog</a></td>
           <td><code>https://feeds.firebaseio.com/gmail</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/gmail" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.macrumors.com/MacRumors-All" target="_blank">MacRumors: Mac News and Rumors</a></td>
           <td><code>https://feeds.firebaseio.com/macrumors</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/macrumors" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/makezineonline" target="_blank">MAKE</a></td>
           <td><code>https://feeds.firebaseio.com/make</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/make" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://www.joelonsoftware.com/rss.xml" target="_blank">Joel on Software</a></td>
           <td><code>https://feeds.firebaseio.com/joel</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/joel" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/blogspot/dtKx" target="_blank">Official Google Reader Blog</a></td>
           <td><code>https://feeds.firebaseio.com/reader</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/reader" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/DilbertDailyStrip" target="_blank">Dilbert Daily Strip</a></td>
           <td><code>https://feeds.firebaseio.com/dilbert</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/dilbert" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://rss.nytimes.com/services/xml/rss/nyt/US.xml" target="_blank">NYT > U.S.</a></td>
           <td><code>https://feeds.firebaseio.com/nyt</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/nyt" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
-          <td><a href="http://feeds.bbci.co.uk/news/rss.xml?edition=int" target="_blank">BBC News - Home</a></td>
+          <td><a href="http://feeds.bbci.co.uk/news/rss.xml?edition=int" target="_blank">BBC News</a></td>
           <td><code>https://feeds.firebaseio.com/bbc</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/bbc" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/failblog" target="_blank">FAIL Blog</a></td>
           <td><code>https://feeds.firebaseio.com/failblog</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/failblog" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/alistapart/main" target="_blank">A List Apart</a></td>
           <td><code>https://feeds.firebaseio.com/alistapart</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/alistapart" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/marcoorg" target="_blank">Marco.org</a></td>
           <td><code>https://feeds.firebaseio.com/marco</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/marco" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
-          <td><a href="http://www.theverge.com/rss/index.xml" target="_blank">The Verge -  All Posts</a></td>
+          <td><a href="http://www.theverge.com/rss/index.xml" target="_blank">The Verge</a></td>
           <td><code>https://feeds.firebaseio.com/marco</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/marco" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://zenhabits.net/feed/" target="_blank">zenhabits</a></td>
           <td><code>https://feeds.firebaseio.com/zenhabits</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/zenhabits" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://syndication.thedailywtf.com/TheDailyWtf" target="_blank">The Daily WTF</a></td>
           <td><code>https://feeds.firebaseio.com/dailywtf</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/dailywtf" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/typepad/sethsmainblog" target="_blank">Seth Godin</a></td>
           <td><code>https://feeds.firebaseio.com/seth</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/seth" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.penny-arcade.com/pa-mainsite" target="_blank">Penny Arcade</a></td>
           <td><code>https://feeds.firebaseio.com/penny</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/penny" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://what-if.xkcd.com/feed.atom" target="_blank">What If?</a></td>
           <td><code>https://feeds.firebaseio.com/whatif</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/whatif" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/readwriteweb" target="_blank">ReadWriteWeb</a></td>
           <td><code>https://feeds.firebaseio.com/readwrite</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/readwrite" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://www.questionablecontent.net/QCRSS.xml" target="_blank">Questionable Content</a></td>
           <td><code>https://feeds.firebaseio.com/qc</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/qc" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://kk.org/cooltools/feed" target="_blank">Cool Tools</a></td>
           <td><code>https://feeds.firebaseio.com/cooltools</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/cooltools" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/GoogleOperatingSystem" target="_blank">Google Operating System</a></td>
           <td><code>https://feeds.firebaseio.com/googleos</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/googleos" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/smittenkitchen" target="_blank">smitten kitchen</a></td>
           <td><code>https://feeds.firebaseio.com/smitten</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/smitten" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://rss.cnn.com/rss/cnn_topstories.rss" target="_blank">CNN.com</a></td>
           <td><code>https://feeds.firebaseio.com/cnn</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/cnn" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="https://news.ycombinator.com/rss" target="_blank">Hacker News</a></td>
           <td><code>https://feeds.firebaseio.com/hn</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/hn" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://www.randsinrepose.com/index.xml" target="_blank">Rands In Repose</a></td>
           <td><code>https://feeds.firebaseio.com/rands</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/rands" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://waxy.org/index.xml" target="_blank">Waxy.org</a></td>
           <td><code>https://feeds.firebaseio.com/waxy</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/waxy" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/venturebeat" target="_blank">VentureBeat</a></td>
           <td><code>https://feeds.firebaseio.com/venturebeat</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/venturebeat" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/apartmenttherapy/main" target="_blank">Apartment Therapy</a></td>
           <td><code>https://feeds.firebaseio.com/apartment</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/apartment" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/Hyperbole-and-a-half" target="_blank">Hyperbole and a Half</a></td>
           <td><code>https://feeds.firebaseio.com/hyperbole</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/hyperbole" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/ommalik" target="_blank">GigaOM</a></td>
           <td><code>https://feeds.firebaseio.com/gigaom</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/gigaom" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
         <tr>
           <td><a href="http://feeds.feedburner.com/schneier/fulltext" target="_blank">Schneier on Security</a></td>
           <td><code>https://feeds.firebaseio.com/schneier</code></td>
+          <td><a data-clipboard-text="https://feeds.firebaseio.com/schneier" class="btn clipboard"><i class="icon-pencil"></i></a></td>
         </tr>
       </tbody>
     </table>
@@ -385,6 +440,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.0.6/humane.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zeroclipboard/1.1.7/ZeroClipboard.min.js"></script>
 
 <script id="example-script" type="text/javascript">var ref = new Firebase("https://anant.firebaseio.com/feeds/xckd");
 ref.child("meta").once("value", function(snapshot) {
@@ -400,6 +456,7 @@ ref.child("articles").on("child_added", function(snapshot) {
 <script type="text/javascript">
   var __num = 0;
   var __URL = "https://feedthefire.firebaseio.com";
+  humane.error = humane.spawn({addnCls: "humane-jackedup-error"});
 
   var ref = new Firebase(__URL);
   var userRef = null;
@@ -413,6 +470,14 @@ ref.child("articles").on("child_added", function(snapshot) {
       loadFrontPage();
     }
   });
+
+  (function setupClipboard() {
+    ZeroClipboard.setDefaults({moviePath: "static/zeroclipboard.swf"});
+    var clip = new ZeroClipboard($(".clipboard"));
+    clip.on("complete", function(cl, arg) {
+      humane.log("Copied <code>" + arg.text + "</code> to clipboard!");
+    });
+  })();
 
   function transition(id, content, next) {
     $("#content").fadeOut("fast", function() {
