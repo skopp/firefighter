@@ -440,15 +440,7 @@
   </td>
 </script>
 
-<script src="https://login.persona.org/include.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.0.6/humane.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zeroclipboard/1.1.7/ZeroClipboard.min.js"></script>
-
-<script id="example-script" type="text/javascript">var ref = new Firebase("https://feeds.firebaseio.com/xkcd");
+<script type="text/template" id="example-script">var ref = new Firebase("https://feeds.firebaseio.com/xkcd");
 ref.child("meta").once("value", function(snapshot) {
   $("#e-title").html(snapshot.val().description);
 });
@@ -458,6 +450,14 @@ ref.child("articles").on("child_added", function(snapshot) {
   $("#e-list").append($("<li>").append(link.html(article.title)));
 });
 </script>
+
+<script src="https://login.persona.org/include.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.0.6/humane.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zeroclipboard/1.1.7/ZeroClipboard.min.js"></script>
 
 <script type="text/javascript">
   var __num = 0;
@@ -503,8 +503,10 @@ ref.child("articles").on("child_added", function(snapshot) {
         img.attr("src", link);
         $("#default-feed-list").slideToggle();
       });
+      var code = $("#example-script").html();
       $("#home-example").html(_.escape($("#example-script").html()));
       $("pre code").each(function(i, e) { hljs.highlightBlock(e); });
+      eval(code);
       $("#login").click(function() {
         authClient.login("persona");
       });
