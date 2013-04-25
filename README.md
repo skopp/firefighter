@@ -5,10 +5,21 @@ synchronize RSS or Atom feeds with [Firebase](https://www.firebase.com/).
 
 Feeds are fetched every 10 minutes and updated if neccessary. Changes in the
 feed's content will show up through the usual Firebase events like
-`child_added`.
+`child_added`. For example, to fetch the latest XKCD comics:
 
-### A live version of this service is running at
-[FeedTheFire.in](http://feedthefire.in).
+```js
+var ref = new Firebase("https://feeds.firebaseio.com/xkcd");
+ref.child("meta").once("value", function(snapshot) {
+  $("#e-title").html(snapshot.val().description);
+});
+ref.child("articles").on("child_added", function(snapshot) {
+  var article = snapshot.val();
+  var link = $("<a>", {"href": article.link, "target": "_blank"});
+  $("#e-list").append($("<li>").append(link.html(article.title)));
+});
+```
+
+### A live version of this service is running at [FeedTheFire.in](http://feedthefire.in).
 
 A public Firebase hosting 50 of the most popular feeds is also available 
 at `https://feeds.fireabaseio.com`. Forge access is unavailable, please use
