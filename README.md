@@ -41,6 +41,13 @@ node process responsible for listening to changes to user data, fetching feeds e
 10 minutes, writing the feeds to the appropriate Firebases, and updating the
 status of each feed.
 
+The backend writes the content of the feed under two top-level keys, `articles`
+and `meta`. The `meta` object contains information about the feed, such as
+its description, title and published date. The `articles` object contains
+the individual feed items, ordered by date. The prirority for each of these
+articles is set to the timestamp at which the article was published, so all
+the `child_added` callbacks will be invoked in order.
+
 License
 -------
 [MIT](http://firebase.mit-license.org).
