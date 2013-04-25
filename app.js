@@ -4,6 +4,9 @@ var crypto = require("crypto")
   , Parser = require("feedparser")
   , Firebase = require("firebase");
 
+var feeds = {};
+var feedContent = {};
+
 var REFRESH_INTERVAL = 600000;
 
 var ref = new Firebase("https://feedthefire.firebaseio.com/persona");
@@ -20,32 +23,6 @@ function getHash(value) {
   var shasum = crypto.createHash("sha1");
   shasum.update(value);
   return shasum.digest("hex");
-}
-
-function setupHandlers() {
-  ref.on("child_added", function(snap) {
-    var childRef = ref.child(snap.name()).child("feeds");
-    childRef.on("child_added", editUserFeed);
-    childRef.on("child_changed", editUserFeed);
-    childRef.on("child_removed", function(snap) {
-      delete feeds[snap.ref().toString()];
-    });
-  });
-  ref.on("child_removed", function(snap) {
-    var childRef = ref.child(snap.name()).child("feeds");
-    childRef.off();
-  });
-}
-
-var feeds = {};
-var feedContent = {};
-function editUserFeed(snap) {
-  var id = snap.name();
-  feeds[id] = {
-    status: new Firebase(snap.ref().toString()).parent().parent().child("status/" + id),
-    value: snap.val()
-  };
-  parseFeeds();
 }
 
 function sanitizeObject(obj) {
@@ -77,25 +54,60 @@ function sanitizeObject(obj) {
   return newObj;
 }
 
-function parseFeeds() {
-  for (var id in feeds) {
-    var feed = feeds[id];
-    try {
-      var fbRef = new Firebase(feed.value.firebase);
-      if (feed.value.secret) {
-        fbRef.auth(feed.value.secret, function(err) {
-          if (err) {
-            feed.status.set(err.toString());
-          } else {
-            doRequest(feed.value.url, feed.status, fbRef);
-          }
-        });
-      } else {
-        doRequest(feed.value.url, feed.status, fbRef);
-      }
-    } catch(e) {
-      feed.status.set(e.toString());
+function setupHandlers() {
+  var self = this;
+  ref.on("child_added", function(snap) {
+    var userid = snap.name();
+    if (!feeds[userid]) {
+      feeds[userid] = {};
     }
+    var childRef = ref.child(userid).child("feeds");
+    childRef.on("child_added", editUserFeed.bind(self, userid));
+    childRef.on("child_changed", editUserFeed.bind(self, userid));
+    childRef.on("child_removed", function(childSnap) {
+      delete feeds[userid][childSnap.name()];
+    });
+  });
+  ref.on("child_removed", function(remSnap) {
+    var childRef = ref.child(remSnap.name()).child("feeds");
+    childRef.off();
+  });
+}
+
+function editUserFeed(userid, snap) {
+  var id = snap.name();
+  var entry = feeds[userid][id] = {
+    status: new Firebase(snap.ref().toString()).parent().parent().child("status/" + id),
+    value: snap.val()
+  };
+  parseFeed(entry);
+}
+
+function parseFeeds() {
+  for (var uid in feeds) {
+    var user = feeds[uid];
+    for (var index in user) {
+      parseFeed(user[index]);
+    }
+  }
+}
+
+function parseFeed(feed) {
+  try {
+    var fbRef = new Firebase(feed.value.firebase);
+    if (feed.value.secret) {
+      fbRef.auth(feed.value.secret, function(err) {
+        if (err) {
+          feed.status.set(err.toString());
+        } else {
+          doRequest(feed.value.url, feed.status, fbRef);
+        }
+      });
+    } else {
+      doRequest(feed.value.url, feed.status, fbRef);
+    }
+  } catch(e) {
+    feed.status.set(e.toString());
   }
 }
 
@@ -103,27 +115,27 @@ function doRequest(url, status, fbRef) {
   var urlHash = getHash(url);
   if (feedContent[urlHash]) {
     if (new Date().getTime() - feedContent[urlHash].lastSync > REFRESH_INTERVAL) {
-      getAndParse(url, urlHash, status, fbRef);
+      getAndSet(url, urlHash, status, fbRef);
     } else {
-      parseFeed(feedContent[urlHash].content, status, fbRef);
+      setFeed(feedContent[urlHash].content, status, fbRef);
     }
   } else {
-    getAndParse(url, urlHash, status, fbRef);
+    getAndSet(url, urlHash, status, fbRef);
   }
 }
 
-function getAndParse(url, hash, status, fbRef) {
+function getAndSet(url, hash, status, fbRef) {
   request(url, function(err, resp, body) {
     if (!err && resp.statusCode == 200) {
       feedContent[hash] = {time: new Date().getTime(), content: body};
-      parseFeed(body, status, fbRef);
+      setFeed(body, status, fbRef);
     } else {
       status.set(err.toString());
     }
   });
 }
 
-function parseFeed(feed, status, fbRef) {
+function setFeed(feed, status, fbRef) {
   Parser.parseString(feed, {addmeta: false}, function(err, meta, articles) {
     if (err) {
       status.set(err.toString());
