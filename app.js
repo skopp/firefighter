@@ -12,7 +12,7 @@ var REFRESH_INTERVAL = 600000;
 var ref = new Firebase("https://feedthefire.firebaseio.com/persona");
 ref.auth(process.env.SECRET, function(err) {
   if (err) {
-    console.log("Firebase authentication failed!", err);
+    console.error("Firebase authentication failed!", err);
   } else {
     setupHandlers();
     setInterval(parseFeeds, REFRESH_INTERVAL);
@@ -54,6 +54,52 @@ function sanitizeObject(obj) {
   return newObj;
 }
 
+function writeStatus(url, data) {
+  writeToFirebase(url, data, process.env.SECRET, function(err) {
+    if (err) {
+      console.error(err);
+    }
+  });
+}
+
+function writeToFirebase(url, data, secret, cb) {
+  var options = {url: url + ".json", method: "PUT", json: data};
+  if (secret) {
+    options.qs = {auth: secret};
+  }
+
+  request(options, function(err, resp, body) {
+    if (!resp || !resp.statusCode) {
+      code = "500";
+    } else {
+      code = resp.statusCode;
+    }
+
+    if (!err && code == 200) {
+      if (cb) {
+        cb(null);
+      }
+    } else {
+      var msg;
+      if (code == 403) {
+        msg = "Error: permission denied while writing to " + url + " (did you specify a secret?)";
+      } else if (code == 417) {
+        msg = "Error: the specified Firebase " + url + " does not exist.";
+      } else {
+        msg = "Error: could not write to " + url + ", received status code " + code;
+      }
+      if (err) {
+        msg = url + ": " + err.toString();
+      }
+      if (cb) {
+        cb(msg);
+      } else {
+        console.error(msg);
+      }
+    }
+  });
+}
+
 function setupHandlers() {
   var self = this;
   ref.on("child_added", function(snap) {
@@ -77,7 +123,9 @@ function setupHandlers() {
 function editUserFeed(userid, snap) {
   var id = snap.name();
   var entry = feeds[userid][id] = {
-    status: new Firebase(snap.ref().toString()).parent().parent().child("status/" + id),
+    statusURL: new Firebase(
+      snap.ref().toString()
+    ).parent().parent().child("status/" + id).toString(),
     value: snap.val()
   };
   parseFeed(entry);
@@ -94,81 +142,74 @@ function parseFeeds() {
 
 function parseFeed(feed) {
   try {
-    var fbRef = new Firebase(feed.value.firebase);
-    if (feed.value.secret) {
-      fbRef.auth(feed.value.secret, function(err) {
-        if (err) {
-          feed.status.set(err.toString());
-        } else {
-          doRequest(feed.value.url, feed.status, fbRef);
-        }
-      });
+    var url = feed.value.url;
+    var statusURL = new Firebase(feed.statusURL).toString();
+
+    if (!url || url.indexOf("http") < 0) {
+      writeStatus(statusURL, "Error: Invalid feed URL specified: " + url);
+      return;
+    }
+    if (!feed.value.firebase || feed.value.firebase.indexOf("https") < 0) {
+      writeStatus(statusURL, "Error: Invalid Firebase URL specified, did you include the https prefix?");
+      return;
+    }
+
+    var fbURL = new Firebase(feed.value.firebase).toString();
+    var secret = feed.value.secret;
+    var urlHash = getHash(url);
+
+    if (feedContent[urlHash]) {
+      if (new Date().getTime() - feedContent[urlHash].lastSync > REFRESH_INTERVAL) {
+        getAndSet(url, urlHash, statusURL, fbURL, secret);
+      } else {
+        setFeed(feedContent[urlHash].content, statusURL, fbURL, secret);
+      }
     } else {
-      doRequest(feed.value.url, feed.status, fbRef);
+      getAndSet(url, urlHash, statusURL, fbURL, secret);
     }
   } catch(e) {
-    feed.status.set(e.toString());
-    fbRef.unauth();
+    writeStatus(statusURL, e.toString());
   }
 }
 
-function doRequest(url, status, fbRef) {
-  var urlHash = getHash(url);
-  if (feedContent[urlHash]) {
-    if (new Date().getTime() - feedContent[urlHash].lastSync > REFRESH_INTERVAL) {
-      getAndSet(url, urlHash, status, fbRef);
-    } else {
-      setFeed(feedContent[urlHash].content, status, fbRef);
-    }
-  } else {
-    getAndSet(url, urlHash, status, fbRef);
-  }
-}
-
-function getAndSet(url, hash, status, fbRef) {
+function getAndSet(url, hash, statusURL, fbURL, secret) {
   request(url, function(err, resp, body) {
     if (!err && resp.statusCode == 200) {
       feedContent[hash] = {time: new Date().getTime(), content: body};
-      setFeed(body, status, fbRef);
+      setFeed(body, statusURL, fbURL, secret);
     } else {
       if (err) {
-        status.set(err.toString());
-        fbRef.unauth();
+        writeStatus(statusURL, err.toString());
       } else {
-        status.set("Got status code " + resp.statusCode);
-        fbRef.unauth();
+        writeStatus(statusURL, "Error: got status " + resp.statusCode + " when fetching feed.");
       }
     }
   });
 }
 
-function setFeed(feed, status, fbRef) {
+function setFeed(feed, statusURL, fbURL, secret) {
   Parser.parseString(feed, {addmeta: false}, function(err, meta, articles) {
     if (err) {
-      status.set(err.toString());
-      fbRef.unauth();
+      writeStatus(statusURL, err.toString());
       return;
     }
     try {
-      fbRef.child("meta").set(sanitizeObject(meta), function(err) {
+      writeToFirebase(fbURL + "/meta", sanitizeObject(meta), secret, function(err) {
         if (err) {
-          status.set(err.toString());
-          fbRef.unauth();
+          writeStatus(statusURL, err.toString());
           return;
         }
-        setArticles(articles, 0, articles.length, status, fbRef);
+        setArticles(articles, 0, articles.length, statusURL, fbURL, secret);
       });
     } catch(e) {
-      status.set(e.toString());
-      fbRef.unauth();
+      writeStatus(statusURL, e.toString());
     }
   });
 }
 
-function setArticles(articles, done, total, status, fbRef) {
+function setArticles(articles, done, total, statusURL, fbURL, secret) {
   if (total <= 0) {
-    status.set(new Date().toString());
-    fbRef.unauth();
+    writeStatus(statusURL, "Last Sync: " + new Date().toString());
     return;
   }
 
@@ -178,18 +219,20 @@ function setArticles(articles, done, total, status, fbRef) {
     article["rss:pubdate"] || new Date().toString();
   var timestamp = Date.parse(date);
 
-  var arRef = fbRef.child("articles/" + id);
-  arRef.setWithPriority(sanitizeObject(article), timestamp, function(err) {
+  var arURL = fbURL + "/articles/" + id;
+  var articleObj = sanitizeObject(article);
+  articleObj[".priority"] = timestamp;
+
+  writeToFirebase(arURL, articleObj, secret, function(err) {
     if (err) {
-      status.set(err.toString());
+      writeStatus(statusURL, err);
     } else {
       done++;
       if (done == total - 1) {
-        status.set(new Date().toString());
+        writeStatus(statusURL, "Last Sync: " + new Date().toString());
       } else {
-        setArticles(articles, done, total, status, fbRef);
+        setArticles(articles, done, total, statusURL, fbURL, secret);
       }
     }
-    fbRef.unauth();
   });
 }
