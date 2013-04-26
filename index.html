@@ -583,7 +583,13 @@ ref.child("articles").limit(3).on("child_added", function(snapshot) {
 
   function updateStatus(snap) {
     var id = snap.name();
-    $("#" + id + " .status").html(snap.val());
+    var status = snap.val();
+    if (status.indexOf("Last Sync") == 0) {
+      var times = status.split(":");
+      times.shift();
+      status = "Last Sync at " + new Date(times.join(":").trim());
+    }
+    $("#" + id + " .status").html(status);
   }
 
   function removeFeed(id) {
