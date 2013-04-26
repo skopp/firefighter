@@ -130,7 +130,11 @@ function getAndSet(url, hash, status, fbRef) {
       feedContent[hash] = {time: new Date().getTime(), content: body};
       setFeed(body, status, fbRef);
     } else {
-      status.set(err.toString());
+      if (err) {
+        status.set(err.toString());
+      } else {
+        status.set("Got status code " + resp.statusCode);
+      }
     }
   });
 }
@@ -147,31 +151,37 @@ function setFeed(feed, status, fbRef) {
           status.set(err.toString());
           return;
         }
-        var total = articles.length, done = 0;
-        function _writeArticle(article) {
-          var id = getHash(article.guid || article.link || article.title);
-          var date = article.pubDate || article.pubdate || article.date ||
-            article["rss:pubdate"] || new Date().toString();
-          var timestamp = Date.parse(date);
-
-          var arRef = fbRef.child("articles/" + id);
-          arRef.setWithPriority(sanitizeObject(article), timestamp, function(err) {
-            if (err) {
-              status.set(err.toString());
-            } else {
-              done++;
-              if (done == total - 1) {
-                status.set("Last Sync:<br/>" + new Date());
-              } else {
-                _writeArticle(articles[done]);
-              }
-            }
-          });
-        }
-        _writeArticle(articles[done]);
+        setArticles(articles, 0, articles.length, status, fbRef);
       });
     } catch(e) {
       status.set(e.toString());
+    }
+  });
+}
+
+function setArticles(articles, done, total, status, fbRef) {
+  if (total <= 0) {
+    status.set(new Date().toString());
+    return;
+  }
+
+  var article = articles[done];
+  var id = getHash(article.guid || article.link || article.title);
+  var date = article.pubDate || article.pubdate || article.date ||
+    article["rss:pubdate"] || new Date().toString();
+  var timestamp = Date.parse(date);
+
+  var arRef = fbRef.child("articles/" + id);
+  arRef.setWithPriority(sanitizeObject(article), timestamp, function(err) {
+    if (err) {
+      status.set(err.toString());
+    } else {
+      done++;
+      if (done == total - 1) {
+        status.set(new Date().toString());
+      } else {
+        setArticles(articles, done, total, status, fbRef);
+      }
     }
   });
 }
