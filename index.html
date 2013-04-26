@@ -444,7 +444,7 @@
 ref.child("meta").once("value", function(snapshot) {
   $("#e-title").html(snapshot.val().description);
 });
-ref.child("articles").on("child_added", function(snapshot) {
+ref.child("articles").limit(3).on("child_added", function(snapshot) {
   var article = snapshot.val();
   var link = $("<a>", {"href": article.link, "target": "_blank"});
   $("#e-list").append($("<li>").append(link.html(article.title)));
