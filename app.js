@@ -108,6 +108,7 @@ function parseFeed(feed) {
     }
   } catch(e) {
     feed.status.set(e.toString());
+    fbRef.unauth();
   }
 }
 
@@ -132,8 +133,10 @@ function getAndSet(url, hash, status, fbRef) {
     } else {
       if (err) {
         status.set(err.toString());
+        fbRef.unauth();
       } else {
         status.set("Got status code " + resp.statusCode);
+        fbRef.unauth();
       }
     }
   });
@@ -143,18 +146,21 @@ function setFeed(feed, status, fbRef) {
   Parser.parseString(feed, {addmeta: false}, function(err, meta, articles) {
     if (err) {
       status.set(err.toString());
+      fbRef.unauth();
       return;
     }
     try {
       fbRef.child("meta").set(sanitizeObject(meta), function(err) {
         if (err) {
           status.set(err.toString());
+          fbRef.unauth();
           return;
         }
         setArticles(articles, 0, articles.length, status, fbRef);
       });
     } catch(e) {
       status.set(e.toString());
+      fbRef.unauth();
     }
   });
 }
@@ -162,6 +168,7 @@ function setFeed(feed, status, fbRef) {
 function setArticles(articles, done, total, status, fbRef) {
   if (total <= 0) {
     status.set(new Date().toString());
+    fbRef.unauth();
     return;
   }
 
@@ -183,5 +190,6 @@ function setArticles(articles, done, total, status, fbRef) {
         setArticles(articles, done, total, status, fbRef);
       }
     }
+    fbRef.unauth();
   });
 }
